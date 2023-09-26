@@ -1,21 +1,29 @@
-import React, { useState } from "react";
+import React from "react";
 import { FormLabel } from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import FormGroup from "@mui/material/FormGroup";
 import Grid from "@mui/material/Unstable_Grid2";
 import InputAdornment from "@mui/material/InputAdornment";
 import MenuItem from "@mui/material/MenuItem";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
+import Select from "@mui/material/Select";
 import TextField from "@mui/material/TextField";
 import { useFormik } from "formik";
 
-import { lbsToKgRounded } from "../util/conversions";
+import { BIOLOGICAL_SEX, GOAL } from "../constants";
+import {
+  feetAndInchesToCm,
+  feetAndInchesToCmRounded,
+  lbsToKg,
+  lbsToKgRounded,
+} from "../util/conversions";
+import TDEECalculator from "./TDEECalculator";
 
 const NutritionForm = () => {
   const formik = useFormik({
     initialValues: {
       firstName: "",
       lastName: "",
+      biologicalSex: null,
       age: null,
       heightFeet: null,
       heightInches: null,
@@ -30,17 +38,13 @@ const NutritionForm = () => {
   });
 
   const goalInvolvesWeightChange = () =>
-    goal === "Lose weight" || goal === "Gain weight";
-
-  const [goal, setGoal] = useState("");
-  const handleGoalChange = (event: SelectChangeEvent) => {
-    setGoal(event.target.value as string);
-  };
+    formik.values.goal === GOAL.LOSE_WEIGHT ||
+    formik.values.goal === GOAL.GAIN_WEIGHT;
 
   return (
     <form onSubmit={formik.handleSubmit}>
       <Grid container spacing={4}>
-        <Grid xs={6}>
+        <Grid xs={4}>
           <FormLabel>First Name</FormLabel>
           <TextField
             fullWidth
@@ -51,7 +55,7 @@ const NutritionForm = () => {
             onBlur={formik.handleBlur}
           />
         </Grid>
-        <Grid xs={6}>
+        <Grid xs={5}>
           <FormLabel>Last Name</FormLabel>
           <TextField
             fullWidth
@@ -61,6 +65,29 @@ const NutritionForm = () => {
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
           />
+        </Grid>
+        <Grid xs={3}>
+          <FormControl fullWidth>
+            <FormLabel id="biological-sex-label">Biological Sex</FormLabel>
+            <Select
+              labelId="biological-sex-label"
+              id="biologicalSex"
+              name="biologicalSex"
+              value={formik.values.biologicalSex}
+              onChange={formik.handleChange}
+            >
+              <MenuItem key={""} value={""}></MenuItem>
+              <MenuItem key={BIOLOGICAL_SEX.MALE} value={BIOLOGICAL_SEX.MALE}>
+                {BIOLOGICAL_SEX.MALE}
+              </MenuItem>
+              <MenuItem
+                key={BIOLOGICAL_SEX.FEMALE}
+                value={BIOLOGICAL_SEX.FEMALE}
+              >
+                {BIOLOGICAL_SEX.FEMALE}
+              </MenuItem>
+            </Select>
+          </FormControl>
         </Grid>
         <Grid xs={2}>
           <FormLabel>Age</FormLabel>
@@ -91,6 +118,14 @@ const NutritionForm = () => {
                   <InputAdornment position="end">ft</InputAdornment>
                 ),
               }}
+              helperText={
+                formik.values.heightFeet && formik.values.heightInches
+                  ? `${feetAndInchesToCmRounded(
+                      formik.values.heightFeet,
+                      formik.values.heightInches
+                    )} cm`
+                  : null
+              }
             />
             <TextField
               fullWidth
@@ -153,14 +188,21 @@ const NutritionForm = () => {
             <FormLabel id="goal-label">Goal</FormLabel>
             <Select
               labelId="goal-label"
-              id="goal-select"
-              value={goal}
-              onChange={handleGoalChange}
+              id="goal"
+              name="goal"
+              value={formik.values.goal}
+              onChange={formik.handleChange}
             >
-              <MenuItem value={""}></MenuItem>
-              <MenuItem value="Lose weight">Lose weight</MenuItem>
-              <MenuItem value="Gain weight">Gain weight</MenuItem>
-              <MenuItem value="Maintain weight">Maintain weight</MenuItem>
+              <MenuItem key={""} value={""}></MenuItem>
+              <MenuItem key={GOAL.LOSE_WEIGHT} value={GOAL.LOSE_WEIGHT}>
+                {GOAL.LOSE_WEIGHT}
+              </MenuItem>
+              <MenuItem key={GOAL.GAIN_WEIGHT} value={GOAL.GAIN_WEIGHT}>
+                {GOAL.GAIN_WEIGHT}
+              </MenuItem>
+              <MenuItem key={GOAL.MAINTAIN_WEIGHT} value={GOAL.MAINTAIN_WEIGHT}>
+                {GOAL.MAINTAIN_WEIGHT}
+              </MenuItem>
             </Select>
           </FormControl>
         </Grid>
@@ -190,6 +232,7 @@ const NutritionForm = () => {
             <TextField
               fullWidth
               disabled
+              id="disabledGoalWeight"
               type="number"
               value={formik.values.weightLbs}
               InputProps={{
@@ -206,6 +249,17 @@ const NutritionForm = () => {
           )}
         </Grid>
       </Grid>
+
+      <TDEECalculator
+        biologicalSex={formik.values.biologicalSex}
+        weightKgs={lbsToKg(formik.values.weightLbs)}
+        heightCms={feetAndInchesToCm(
+          formik.values.heightFeet,
+          formik.values.heightInches
+        )}
+        age={formik.values.age}
+        leanBodyMassKgs={lbsToKg(formik.values.leanBodyMassLbs)}
+      />
     </form>
   );
 };
