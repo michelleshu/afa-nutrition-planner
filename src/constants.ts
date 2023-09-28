@@ -18,3 +18,5 @@ export const BMR_METHOD = {
   HARRIS_BENEDICT: "Harris and Benedict",
   KATCH_MCARDLE: "Katch-McArdle",
 };
+
+export const DEFAULT_TARGET_CALORIE_FACTOR = 33;

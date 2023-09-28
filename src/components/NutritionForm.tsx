@@ -1,5 +1,6 @@
 import React from "react";
 import { FormLabel } from "@mui/material";
+import Divider from "@mui/material/Divider";
 import FormControl from "@mui/material/FormControl";
 import FormGroup from "@mui/material/FormGroup";
 import Grid from "@mui/material/Unstable_Grid2";
@@ -9,6 +10,7 @@ import Select from "@mui/material/Select";
 import TextField from "@mui/material/TextField";
 import { useFormik } from "formik";
 
+import "./NutritionForm.css";
 import { BIOLOGICAL_SEX, GOAL } from "../constants";
 import {
   feetAndInchesToCm,
@@ -16,21 +18,22 @@ import {
   lbsToKg,
   lbsToKgRounded,
 } from "../util/conversions";
-import TDEECalculator from "./TDEECalculator";
+import { isNumber, toNumber } from "../util/validations";
+import CalorieCalculator from "./CalorieCalculator";
 
 const NutritionForm = () => {
   const formik = useFormik({
     initialValues: {
       firstName: "",
       lastName: "",
-      biologicalSex: null,
-      age: null,
-      heightFeet: null,
-      heightInches: null,
-      weightLbs: null,
-      leanBodyMassLbs: null,
-      goal: "",
-      goalWeightLbs: null,
+      biologicalSex: "",
+      age: "",
+      heightFeet: "",
+      heightInches: "",
+      weightLbs: "",
+      leanBodyMassLbs: "",
+      goal: GOAL.MAINTAIN_WEIGHT,
+      goalWeightLbs: "",
     },
     onSubmit: (values) => {
       alert(JSON.stringify(values, null, 2));
@@ -43,7 +46,7 @@ const NutritionForm = () => {
 
   return (
     <form onSubmit={formik.handleSubmit}>
-      <Grid container spacing={4}>
+      <Grid container columnSpacing={4} rowSpacing={2}>
         <Grid xs={4}>
           <FormLabel>First Name</FormLabel>
           <TextField
@@ -119,10 +122,11 @@ const NutritionForm = () => {
                 ),
               }}
               helperText={
-                formik.values.heightFeet && formik.values.heightInches
+                isNumber(formik.values.heightFeet) &&
+                isNumber(formik.values.heightInches)
                   ? `${feetAndInchesToCmRounded(
-                      formik.values.heightFeet,
-                      formik.values.heightInches
+                      toNumber(formik.values.heightFeet),
+                      toNumber(formik.values.heightInches)
                     )} cm`
                   : null
               }
@@ -157,8 +161,8 @@ const NutritionForm = () => {
               endAdornment: <InputAdornment position="end">lbs</InputAdornment>,
             }}
             helperText={
-              formik.values.weightLbs
-                ? `${lbsToKgRounded(formik.values.weightLbs)} kg`
+              isNumber(formik.values.weightLbs)
+                ? `${lbsToKgRounded(toNumber(formik.values.weightLbs))} kg`
                 : null
             }
           />
@@ -177,8 +181,10 @@ const NutritionForm = () => {
               endAdornment: <InputAdornment position="end">lbs</InputAdornment>,
             }}
             helperText={
-              formik.values.leanBodyMassLbs
-                ? `${lbsToKgRounded(formik.values.leanBodyMassLbs)} kg`
+              isNumber(formik.values.leanBodyMassLbs)
+                ? `${lbsToKgRounded(
+                    toNumber(formik.values.leanBodyMassLbs)
+                  )} kg`
                 : null
             }
           />
@@ -193,7 +199,6 @@ const NutritionForm = () => {
               value={formik.values.goal}
               onChange={formik.handleChange}
             >
-              <MenuItem key={""} value={""}></MenuItem>
               <MenuItem key={GOAL.LOSE_WEIGHT} value={GOAL.LOSE_WEIGHT}>
                 {GOAL.LOSE_WEIGHT}
               </MenuItem>
@@ -223,8 +228,10 @@ const NutritionForm = () => {
                 ),
               }}
               helperText={
-                formik.values.goalWeightLbs
-                  ? `${lbsToKgRounded(formik.values.goalWeightLbs)} kg`
+                isNumber(formik.values.goalWeightLbs)
+                  ? `${lbsToKgRounded(
+                      toNumber(formik.values.goalWeightLbs)
+                    )} kg`
                   : null
               }
             />
@@ -241,8 +248,8 @@ const NutritionForm = () => {
                 ),
               }}
               helperText={
-                formik.values.weightLbs
-                  ? `${lbsToKgRounded(formik.values.weightLbs)} kg`
+                isNumber(formik.values.weightLbs)
+                  ? `${lbsToKgRounded(toNumber(formik.values.weightLbs))} kg`
                   : null
               }
             />
@@ -250,15 +257,36 @@ const NutritionForm = () => {
         </Grid>
       </Grid>
 
-      <TDEECalculator
+      <Divider light sx={{ margin: "24px 0" }} />
+
+      <CalorieCalculator
         biologicalSex={formik.values.biologicalSex}
-        weightKgs={lbsToKg(formik.values.weightLbs)}
-        heightCms={feetAndInchesToCm(
-          formik.values.heightFeet,
-          formik.values.heightInches
-        )}
-        age={formik.values.age}
-        leanBodyMassKgs={lbsToKg(formik.values.leanBodyMassLbs)}
+        weightKgs={
+          isNumber(formik.values.weightLbs)
+            ? lbsToKg(toNumber(formik.values.weightLbs))
+            : null
+        }
+        heightCms={
+          isNumber(formik.values.heightFeet) &&
+          isNumber(formik.values.weightLbs)
+            ? feetAndInchesToCm(
+                toNumber(formik.values.heightFeet),
+                toNumber(formik.values.heightInches)
+              )
+            : null
+        }
+        age={isNumber(formik.values.age) ? toNumber(formik.values.age) : null}
+        leanBodyMassKgs={
+          isNumber(formik.values.leanBodyMassLbs)
+            ? lbsToKg(toNumber(formik.values.leanBodyMassLbs))
+            : null
+        }
+        goal={formik.values.goal}
+        goalWeightKgs={
+          isNumber(formik.values.goalWeightLbs)
+            ? lbsToKg(toNumber(formik.values.goalWeightLbs))
+            : null
+        }
       />
     </form>
   );

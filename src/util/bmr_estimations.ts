@@ -40,16 +40,17 @@ export const getBMRKatchMcArdle = ({
   weightKgs,
   heightCms,
 }: {
-  leanBodyMassKgs?: number | null;
+  leanBodyMassKgs: number | null;
   biologicalSex: "Male" | "Female";
   weightKgs: number;
   heightCms: number;
 }) => {
   // If LBM not provided, use Boer estimation to estimate LBM.
-  const effectiveLeanBodyMassKgs =
-    leanBodyMassKgs ?? biologicalSex === "Male"
-      ? 0.407 * weightKgs + 0.267 * heightCms - 19.2
-      : 0.252 * weightKgs + 0.473 * heightCms - 48.3;
+  const effectiveLeanBodyMassKgs = leanBodyMassKgs
+    ? leanBodyMassKgs
+    : biologicalSex === "Male"
+    ? 0.407 * weightKgs + 0.267 * heightCms - 19.2
+    : 0.252 * weightKgs + 0.473 * heightCms - 48.3;
 
   return 370 + 21.6 * effectiveLeanBodyMassKgs;
 };

@@ -1,0 +1,27 @@
+.HighlightCard {
+  color: #2d3436;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+  padding: 24px;
+}
+
+.GrayHighlightCard {
+  background-color: #dfe6e9;
+}
+
+.BlueHighlightCard {
+  background-color: #74b9ff;
+}
+
+.GreenHighlightCard {
+  background-color: #55efc4;
+}
+
+.TargetCaloriesSpacer {
+  height: 1.4375em;
+  padding: 16.5px 14px;
+}
