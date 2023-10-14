@@ -24,6 +24,7 @@ const CalorieCalculator = ({
   leanBodyMassKgs,
   goal,
   goalWeightKgs,
+  setTargetCalories,
 }: {
   biologicalSex: string;
   weightKgs: number | null;
@@ -32,6 +33,7 @@ const CalorieCalculator = ({
   leanBodyMassKgs: number | null;
   goal: string;
   goalWeightKgs: number | null;
+  setTargetCalories: (targetCalories: number | null) => void;
 }) => {
   const [bmrMethod, setBmrMethod] = useState<string>(
     BMR_METHOD.MIFFLIN_ST_JEOR
@@ -42,34 +44,41 @@ const CalorieCalculator = ({
   const [tdee, setTdee] = useState<number | null>(null);
   const [targetCalorieFactor, setTargetCalorieFactor] = useState<string>("");
 
-  const updateTargetCalorieFactor = ({
-    tdee,
-    goal,
-    weightKgs,
-    goalWeightKgs,
-  }: {
-    tdee: number | null;
-    goal: string;
-    weightKgs: number | null;
-    goalWeightKgs: number | null;
-  }) => {
-    if (
-      goal === GOAL.MAINTAIN_WEIGHT &&
-      isNumber(tdee) &&
-      isNumber(weightKgs)
-    ) {
-      setTargetCalorieFactor(
-        (
-          Math.round((toNumber(tdee) * 100) / toNumber(weightKgs)) / 100
-        ).toString()
-      );
-    } else if (
-      (goal === GOAL.LOSE_WEIGHT || goal === GOAL.GAIN_WEIGHT) &&
-      isNumber(goalWeightKgs)
-    ) {
-      setTargetCalorieFactor(DEFAULT_TARGET_CALORIE_FACTOR.toString());
-    }
-  };
+  const updateTargetCalorieFactor = useCallback(
+    ({
+      tdee,
+      goal,
+      weightKgs,
+      goalWeightKgs,
+    }: {
+      tdee: number | null;
+      goal: string;
+      weightKgs: number | null;
+      goalWeightKgs: number | null;
+    }) => {
+      if (
+        goal === GOAL.MAINTAIN_WEIGHT &&
+        isNumber(tdee) &&
+        isNumber(weightKgs)
+      ) {
+        setTargetCalorieFactor(
+          (
+            Math.round((toNumber(tdee) * 100) / toNumber(weightKgs)) / 100
+          ).toString()
+        );
+        setTargetCalories(toNumber(tdee));
+      } else if (
+        (goal === GOAL.LOSE_WEIGHT || goal === GOAL.GAIN_WEIGHT) &&
+        isNumber(goalWeightKgs)
+      ) {
+        setTargetCalorieFactor(DEFAULT_TARGET_CALORIE_FACTOR.toString());
+        setTargetCalories(
+          toNumber(goalWeightKgs) * DEFAULT_TARGET_CALORIE_FACTOR
+        );
+      }
+    },
+    [setTargetCalorieFactor, setTargetCalories]
+  );
 
   const updateTdee = useCallback(
     (bmr: number, paf: number) => {
@@ -82,7 +91,7 @@ const CalorieCalculator = ({
         goalWeightKgs,
       });
     },
-    [goal, weightKgs, goalWeightKgs]
+    [goal, weightKgs, goalWeightKgs, updateTargetCalorieFactor]
   );
 
   const clearTdee = useCallback(() => {
@@ -93,7 +102,7 @@ const CalorieCalculator = ({
       weightKgs,
       goalWeightKgs,
     });
-  }, [goal, weightKgs, goalWeightKgs]);
+  }, [goal, weightKgs, goalWeightKgs, updateTargetCalorieFactor]);
 
   const updateEstimatedBmr = useCallback(
     (bmrEstimationMethod: string) => {
@@ -146,8 +155,7 @@ const CalorieCalculator = ({
       leanBodyMassKgs,
       weightKgs,
       physicalActivityFactor,
-      goal,
-      goalWeightKgs,
+      updateTdee,
     ]
   );
 

@@ -1,5 +1,5 @@
-import React from "react";
-import { FormLabel } from "@mui/material";
+import React, { useState } from "react";
+import { FormLabel, Typography } from "@mui/material";
 import Divider from "@mui/material/Divider";
 import FormControl from "@mui/material/FormControl";
 import FormGroup from "@mui/material/FormGroup";
@@ -20,8 +20,10 @@ import {
 } from "../util/conversions";
 import { isNumber, toNumber } from "../util/validations";
 import CalorieCalculator from "./CalorieCalculator";
+import MacroCalculator from "./MacroCalculator";
 
 const NutritionForm = () => {
+  const [targetCalories, setTargetCalories] = useState<number | null>(null);
   const formik = useFormik({
     initialValues: {
       firstName: "",
@@ -35,9 +37,7 @@ const NutritionForm = () => {
       goal: GOAL.MAINTAIN_WEIGHT,
       goalWeightLbs: "",
     },
-    onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2));
-    },
+    onSubmit: (values) => {},
   });
 
   const goalInvolvesWeightChange = () =>
@@ -259,6 +259,10 @@ const NutritionForm = () => {
 
       <Divider light sx={{ margin: "24px 0" }} />
 
+      <Typography variant="h5" component="h1" sx={{ marginBottom: 2 }}>
+        Calories
+      </Typography>
+
       <CalorieCalculator
         biologicalSex={formik.values.biologicalSex}
         weightKgs={
@@ -287,7 +291,22 @@ const NutritionForm = () => {
             ? lbsToKg(toNumber(formik.values.goalWeightLbs))
             : null
         }
+        setTargetCalories={setTargetCalories}
       />
+      {isNumber(targetCalories) && isNumber(formik.values.weightLbs) ? (
+        <>
+          <Divider light sx={{ margin: "24px 0" }} />
+
+          <Typography variant="h5" component="h1" sx={{ marginBottom: 2 }}>
+            Macronutrients
+          </Typography>
+
+          <MacroCalculator
+            targetCalories={toNumber(targetCalories)}
+            bodyWeightKgs={lbsToKg(toNumber(formik.values.weightLbs))}
+          ></MacroCalculator>
+        </>
+      ) : null}
     </form>
   );
 };
