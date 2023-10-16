@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Typography } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
 
-import { LIGHT_GRAY, BLUE, GREEN, RED, YELLOW } from "../colors";
+import { BLUE, GREEN, RED, YELLOW } from "../colors";
 import {
   BlueMacroSlider,
   RedMacroSlider,
@@ -46,15 +46,15 @@ const MacroCalculator = ({
   useEffect(() => {
     setProteinGrams(initialProteinGrams);
     updateProteinGrams(initialProteinGrams);
-  }, [initialProteinGrams]);
+  }, [initialProteinGrams, updateProteinGrams]);
   useEffect(() => {
     setCarbGrams(initialCarbGrams);
     updateCarbGrams(initialCarbGrams);
-  }, [initialCarbGrams]);
+  }, [initialCarbGrams, updateCarbGrams]);
   useEffect(() => {
     setFatGrams(initialFatGrams);
     updateFatGrams(initialFatGrams);
-  }, [initialFatGrams]);
+  }, [initialFatGrams, updateFatGrams]);
 
   const handleProteinGramsChange = (
     event: Event,
