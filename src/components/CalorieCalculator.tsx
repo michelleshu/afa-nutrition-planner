@@ -190,7 +190,12 @@ const CalorieCalculator = ({
   const handleTargetCalorieFactorChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setTargetCalorieFactor(event.target.value);
+    const newFactor = event.target.value;
+    setTargetCalorieFactor(newFactor);
+
+    if (isNumber(newFactor)) {
+      setTargetCalories(targetCalories(newFactor));
+    }
   };
 
   const targetCaloriesHeading = () => {
@@ -236,18 +241,16 @@ const CalorieCalculator = ({
     }
   };
 
-  const targetCalories = () => {
-    if (isNumber(targetCalorieFactor)) {
+  const targetCalories = (factor: string) => {
+    if (isNumber(factor)) {
       if (goal === GOAL.MAINTAIN_WEIGHT && isNumber(weightKgs)) {
-        return Math.round(toNumber(targetCalorieFactor) * toNumber(weightKgs));
+        return Math.round(toNumber(factor) * toNumber(weightKgs));
       }
       if (
         (goal === GOAL.LOSE_WEIGHT || goal === GOAL.GAIN_WEIGHT) &&
         isNumber(goalWeightKgs)
       ) {
-        return Math.round(
-          toNumber(targetCalorieFactor) * toNumber(goalWeightKgs)
-        );
+        return Math.round(toNumber(factor) * toNumber(goalWeightKgs));
       }
     }
     return null;
@@ -321,7 +324,9 @@ const CalorieCalculator = ({
             Target Calories
           </Typography>
           <Typography variant="h3" component="p">
-            {targetCalories() ? `${targetCalories()} cal` : ""}
+            {targetCalories(targetCalorieFactor)
+              ? `${targetCalories(targetCalorieFactor)} cal`
+              : ""}
           </Typography>
         </div>
       </Grid>
