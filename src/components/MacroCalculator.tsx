@@ -1,17 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { Typography } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
+
+import { LIGHT_GRAY, BLUE, GREEN, RED, YELLOW } from "../colors";
 import {
+  BlueMacroSlider,
   RedMacroSlider,
   YellowMacroSlider,
-  GreenMacroSlider,
 } from "./MacroSlider";
+
+const CALORIE_TARGET_TOLERANCE = 50;
+
 const MacroCalculator = ({
   targetCalories,
   bodyWeightKgs,
+  updateProteinGrams,
+  updateCarbGrams,
+  updateFatGrams,
 }: {
   targetCalories: number;
   bodyWeightKgs: number;
+  updateProteinGrams: (proteinGrams: number) => void;
+  updateFatGrams: (proteinGrams: number) => void;
+  updateCarbGrams: (proteinGrams: number) => void;
 }) => {
   const minimumProteinGrams = Math.round(0.8 * bodyWeightKgs);
   const maximumProteinGrams = Math.round(2.4 * bodyWeightKgs);
@@ -34,12 +45,15 @@ const MacroCalculator = ({
 
   useEffect(() => {
     setProteinGrams(initialProteinGrams);
+    updateProteinGrams(initialProteinGrams);
   }, [initialProteinGrams]);
   useEffect(() => {
     setCarbGrams(initialCarbGrams);
+    updateCarbGrams(initialCarbGrams);
   }, [initialCarbGrams]);
   useEffect(() => {
     setFatGrams(initialFatGrams);
+    updateFatGrams(initialFatGrams);
   }, [initialFatGrams]);
 
   const handleProteinGramsChange = (
@@ -48,22 +62,34 @@ const MacroCalculator = ({
   ) => {
     if (typeof newValue === "number") {
       setProteinGrams(newValue);
+      updateProteinGrams(newValue);
     }
   };
 
   const handleCarbGramsChange = (event: Event, newValue: number | number[]) => {
     if (typeof newValue === "number") {
       setCarbGrams(newValue);
+      updateCarbGrams(newValue);
     }
   };
 
   const handleFatGramsChange = (event: Event, newValue: number | number[]) => {
     if (typeof newValue === "number") {
       setFatGrams(newValue);
+      updateFatGrams(newValue);
     }
   };
 
   const totalCalories = () => proteinGrams * 4 + carbGrams * 4 + fatGrams * 9;
+  const totalCaloriesColor = () => {
+    if (
+      Math.abs(totalCalories() - targetCalories) <= CALORIE_TARGET_TOLERANCE
+    ) {
+      return GREEN;
+    } else {
+      return RED;
+    }
+  };
 
   const macroSliderValueLabelFormat = (value: number) => `${value} g`;
 
@@ -76,7 +102,7 @@ const MacroCalculator = ({
       rowSpacing={2}
     >
       <Grid xs={2}>
-        <Typography variant="h6" component="h2" sx={{ color: "#d63031" }}>
+        <Typography variant="h6" component="h2" sx={{ color: RED }}>
           Protein
         </Typography>
       </Grid>
@@ -92,22 +118,27 @@ const MacroCalculator = ({
           sx={{ marginTop: 4, marginBottom: 3 }}
         />
       </Grid>
-      <Grid container xs={2} alignItems="center" justifyContent="flex-end">
-        <Typography variant="body1">{proteinGrams * 4} cal</Typography>
+      <Grid xs={2}>
+        <Typography variant="body1" sx={{ textAlign: "right" }}>
+          {proteinGrams * 4} cal
+        </Typography>
       </Grid>
-      <Grid container xs={2} alignItems="center" justifyContent="flex-end">
-        <Typography variant="body1">
+      <Grid xs={2}>
+        <Typography variant="body1" sx={{ textAlign: "right" }}>
           {Math.round((proteinGrams * 10) / bodyWeightKgs) / 10} g/kg BW
         </Typography>
       </Grid>
-      <Grid container xs={2} alignItems="center" justifyContent="flex-end">
-        <Typography variant="body1">
+      <Grid xs={2}>
+        <Typography
+          variant="body1"
+          sx={{ color: RED, fontWeight: "bold", textAlign: "right" }}
+        >
           {Math.round((proteinGrams * 400) / totalCalories())}%
         </Typography>
       </Grid>
 
       <Grid xs={2}>
-        <Typography variant="h6" component="h2" sx={{ color: "#fba403" }}>
+        <Typography variant="h6" component="h2" sx={{ color: YELLOW }}>
           Carbs
         </Typography>
       </Grid>
@@ -123,27 +154,32 @@ const MacroCalculator = ({
           sx={{ marginTop: 4, marginBottom: 3 }}
         />
       </Grid>
-      <Grid container xs={2} alignItems="center" justifyContent="flex-end">
-        <Typography variant="body1">{carbGrams * 4} cal</Typography>
+      <Grid xs={2}>
+        <Typography variant="body1" sx={{ textAlign: "right" }}>
+          {carbGrams * 4} cal
+        </Typography>
       </Grid>
-      <Grid container xs={2} alignItems="center" justifyContent="flex-end">
-        <Typography variant="body1">
+      <Grid xs={2}>
+        <Typography variant="body1" sx={{ textAlign: "right" }}>
           {Math.round((carbGrams * 10) / bodyWeightKgs) / 10} g/kg BW
         </Typography>
       </Grid>
-      <Grid container xs={2} alignItems="center" justifyContent="flex-end">
-        <Typography variant="body1">
+      <Grid xs={2}>
+        <Typography
+          variant="body1"
+          sx={{ color: YELLOW, fontWeight: "bold", textAlign: "right" }}
+        >
           {Math.round((carbGrams * 400) / totalCalories())}%
         </Typography>
       </Grid>
 
       <Grid xs={2}>
-        <Typography variant="h6" component="h2" sx={{ color: "#00b894" }}>
+        <Typography variant="h6" component="h2" sx={{ color: BLUE }}>
           Fats
         </Typography>
       </Grid>
       <Grid xs={4}>
-        <GreenMacroSlider
+        <BlueMacroSlider
           aria-label="Fats Slider"
           min={minimumFatGrams}
           max={maximumFatGrams}
@@ -154,28 +190,58 @@ const MacroCalculator = ({
           sx={{ marginTop: 4, marginBottom: 3 }}
         />
       </Grid>
-      <Grid container xs={2} alignItems="center" justifyContent="flex-end">
-        <Typography variant="body1">{fatGrams * 9} cal</Typography>
+      <Grid xs={2}>
+        <Typography variant="body1" sx={{ textAlign: "right" }}>
+          {fatGrams * 9} cal
+        </Typography>
       </Grid>
-      <Grid container xs={2} alignItems="center" justifyContent="flex-end">
-        <Typography variant="body1">
+      <Grid xs={2}>
+        <Typography variant="body1" sx={{ textAlign: "right" }}>
           {Math.round((fatGrams * 10) / bodyWeightKgs) / 10} g/kg BW
         </Typography>
       </Grid>
-      <Grid container xs={2} alignItems="center" justifyContent="flex-end">
-        <Typography variant="body1">
+      <Grid xs={2}>
+        <Typography
+          variant="body1"
+          sx={{ color: BLUE, fontWeight: "bold", textAlign: "right" }}
+        >
           {Math.round((fatGrams * 900) / totalCalories())}%
         </Typography>
       </Grid>
 
       <Grid xs={6}></Grid>
       <Grid
-        container
         xs={2}
-        justifyContent="flex-end"
-        sx={{ borderColor: "#2d3436", borderTop: 2, paddingY: 4 }}
+        sx={{
+          "--Grid-borderWidth": "1px",
+          "borderTop": "var(--Grid-borderWidth) solid",
+          "borderColor": "divider",
+          "paddingY": 4,
+        }}
       >
-        <Typography variant="body1">{totalCalories()} cal</Typography>
+        <Typography
+          variant="body1"
+          sx={{
+            color: totalCaloriesColor(),
+            fontWeight: "bold",
+            textAlign: "right",
+          }}
+        >
+          {totalCalories()} cal
+        </Typography>
+      </Grid>
+      <Grid
+        xs={4}
+        sx={{
+          "--Grid-borderWidth": "1px",
+          "borderTop": "var(--Grid-borderWidth) solid",
+          "borderColor": "divider",
+          "paddingY": 4,
+        }}
+      >
+        <Typography variant="body1">
+          (Target: {Math.round(targetCalories)} cal)
+        </Typography>
       </Grid>
       <Grid xs={2}></Grid>
       <Grid xs={2}></Grid>

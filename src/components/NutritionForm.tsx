@@ -10,7 +10,6 @@ import Select from "@mui/material/Select";
 import TextField from "@mui/material/TextField";
 import { useFormik } from "formik";
 
-import "./NutritionForm.css";
 import { BIOLOGICAL_SEX, GOAL } from "../constants";
 import {
   feetAndInchesToCm,
@@ -20,10 +19,15 @@ import {
 } from "../util/conversions";
 import { isNumber, toNumber } from "../util/validations";
 import CalorieCalculator from "./CalorieCalculator";
+import DailyPortionsCalculator from "./DailyPortionsCalculator";
 import MacroCalculator from "./MacroCalculator";
 
 const NutritionForm = () => {
   const [targetCalories, setTargetCalories] = useState<number | null>(null);
+  const [proteinGrams, setProteinGrams] = useState<number | null>(null);
+  const [carbGrams, setCarbGrams] = useState<number | null>(null);
+  const [fatGrams, setFatGrams] = useState<number | null>(null);
+
   const formik = useFormik({
     initialValues: {
       firstName: "",
@@ -257,7 +261,7 @@ const NutritionForm = () => {
         </Grid>
       </Grid>
 
-      <Divider light sx={{ margin: "24px 0" }} />
+      <Divider light sx={{ margin: "30px 0" }} />
 
       <Typography variant="h5" component="h1" sx={{ marginBottom: 2 }}>
         Calories
@@ -295,7 +299,7 @@ const NutritionForm = () => {
       />
       {isNumber(targetCalories) && isNumber(formik.values.weightLbs) ? (
         <>
-          <Divider light sx={{ margin: "24px 0" }} />
+          <Divider light sx={{ margin: "30px 0" }} />
 
           <Typography variant="h5" component="h1" sx={{ marginBottom: 2 }}>
             Macronutrients
@@ -304,7 +308,26 @@ const NutritionForm = () => {
           <MacroCalculator
             targetCalories={toNumber(targetCalories)}
             bodyWeightKgs={lbsToKg(toNumber(formik.values.weightLbs))}
+            updateProteinGrams={setProteinGrams}
+            updateCarbGrams={setCarbGrams}
+            updateFatGrams={setFatGrams}
           ></MacroCalculator>
+        </>
+      ) : null}
+
+      {isNumber(proteinGrams) && isNumber(carbGrams) && isNumber(fatGrams) ? (
+        <>
+          <Divider light sx={{ margin: "30px 0" }} />
+
+          <Typography variant="h5" component="h1" sx={{ marginBottom: 2 }}>
+            Daily Portions
+          </Typography>
+
+          <DailyPortionsCalculator
+            proteinGrams={proteinGrams || 0}
+            carbGrams={carbGrams || 0}
+            fatGrams={fatGrams || 0}
+          />
         </>
       ) : null}
     </form>

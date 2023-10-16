@@ -8,6 +8,7 @@ import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 
 import "./App.css";
+import { AFA_DARK_BLUE } from "./colors";
 import NutritionForm from "./components/NutritionForm";
 import HorizontalLogo from "./images/AFA-horizontal-logo.png";
 import { Typography } from "@mui/material";
@@ -19,8 +20,7 @@ function App() {
       sx={{
         flexGrow: 1,
         margin: "60px auto",
-        maxWidth: "800px",
-        minWidth: "500px",
+        width: "900px",
       }}
     >
       <Stack
@@ -30,7 +30,7 @@ function App() {
         marginBottom="36px"
         spacing={4}
       >
-        <Typography variant="h2" component="h1" sx={{ color: "#002554" }}>
+        <Typography variant="h2" component="h1" sx={{ color: AFA_DARK_BLUE }}>
           Nutrition Planner
         </Typography>
         <img

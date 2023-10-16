@@ -1,5 +1,6 @@
 import Slider from "@mui/material/Slider";
 import { styled } from "@mui/material/styles";
+import { BLUE, RED, YELLOW } from "../colors";
 
 const MacroSlider = (color: string) =>
   styled(Slider)({
@@ -41,8 +42,8 @@ const MacroSlider = (color: string) =>
     },
   });
 
-const RedMacroSlider = MacroSlider("#d63031");
-const YellowMacroSlider = MacroSlider("#fba403");
-const GreenMacroSlider = MacroSlider("#00b894");
+const BlueMacroSlider = MacroSlider(BLUE);
+const RedMacroSlider = MacroSlider(RED);
+const YellowMacroSlider = MacroSlider(YELLOW);
 
-export { RedMacroSlider, YellowMacroSlider, GreenMacroSlider };
+export { BlueMacroSlider, RedMacroSlider, YellowMacroSlider };
