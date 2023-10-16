@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/afa-nutrition-planner/static/css/main.0ea9a0c4.css",
-    "main.js": "/afa-nutrition-planner/static/js/main.8602f1ab.js",
+    "main.js": "/afa-nutrition-planner/static/js/main.e95aaab5.js",
     "static/js/787.8c634315.chunk.js": "/afa-nutrition-planner/static/js/787.8c634315.chunk.js",
     "static/media/AFA-horizontal-logo.png": "/afa-nutrition-planner/static/media/AFA-horizontal-logo.9da17cd38e05e8a4ff71.png",
     "static/media/roboto-latin-500-normal.woff2": "/afa-nutrition-planner/static/media/roboto-latin-500-normal.f25d774ecfe0996f8eb5.woff2",
@@ -62,11 +62,11 @@
     "static/media/roboto-greek-ext-700-normal.woff": "/afa-nutrition-planner/static/media/roboto-greek-ext-700-normal.249853776d22a271b2b5.woff",
     "index.html": "/afa-nutrition-planner/index.html",
     "main.0ea9a0c4.css.map": "/afa-nutrition-planner/static/css/main.0ea9a0c4.css.map",
-    "main.8602f1ab.js.map": "/afa-nutrition-planner/static/js/main.8602f1ab.js.map",
+    "main.e95aaab5.js.map": "/afa-nutrition-planner/static/js/main.e95aaab5.js.map",
     "787.8c634315.chunk.js.map": "/afa-nutrition-planner/static/js/787.8c634315.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.0ea9a0c4.css",
-    "static/js/main.8602f1ab.js"
+    "static/js/main.e95aaab5.js"
   ]
 }
