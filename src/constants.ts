@@ -16,6 +16,7 @@ export const GOAL = {
 export const BMR_METHOD = {
   MIFFLIN_ST_JEOR: "Mifflin-St. Jeor",
   HARRIS_BENEDICT: "Harris and Benedict",
+  CUNNINGHAM: "Cunningham",
   KATCH_MCARDLE: "Katch-McArdle",
 };
 

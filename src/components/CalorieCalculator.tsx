@@ -13,6 +13,7 @@ import {
   getBMRMifflinStJeor,
   getBMRHarrisBenedict,
   getBMRKatchMcArdle,
+  getBMRCunningham,
 } from "../util/bmr_estimations";
 import { isNumber, toNumber } from "../util/validations";
 
@@ -36,7 +37,7 @@ const CalorieCalculator = ({
   setTargetCalories: (targetCalories: number | null) => void;
 }) => {
   const [bmrMethod, setBmrMethod] = useState<string>(
-    BMR_METHOD.MIFFLIN_ST_JEOR
+    BMR_METHOD.HARRIS_BENEDICT
   );
   const [estimatedBmr, setEstimatedBmr] = useState<number | null>(null);
   const [physicalActivityFactor, setPhysicalActivityFactor] =
@@ -129,6 +130,15 @@ const CalorieCalculator = ({
               weightKgs,
               heightCms,
               age,
+            })
+          );
+        } else if (bmrEstimationMethod === BMR_METHOD.CUNNINGHAM) {
+          bmr = Math.round(
+            getBMRCunningham({
+              biologicalSex,
+              weightKgs,
+              heightCms,
+              leanBodyMassKgs,
             })
           );
         } else if (bmrEstimationMethod === BMR_METHOD.KATCH_MCARDLE) {
@@ -269,22 +279,13 @@ const CalorieCalculator = ({
             onChange={handleBmrMethodChange}
           >
             <MenuItem
-              key={BMR_METHOD.MIFFLIN_ST_JEOR}
-              value={BMR_METHOD.MIFFLIN_ST_JEOR}
-            >
-              {BMR_METHOD.MIFFLIN_ST_JEOR}
-            </MenuItem>
-            <MenuItem
               key={BMR_METHOD.HARRIS_BENEDICT}
               value={BMR_METHOD.HARRIS_BENEDICT}
             >
               {BMR_METHOD.HARRIS_BENEDICT}
             </MenuItem>
-            <MenuItem
-              key={BMR_METHOD.KATCH_MCARDLE}
-              value={BMR_METHOD.KATCH_MCARDLE}
-            >
-              {BMR_METHOD.KATCH_MCARDLE}
+            <MenuItem key={BMR_METHOD.CUNNINGHAM} value={BMR_METHOD.CUNNINGHAM}>
+              {BMR_METHOD.CUNNINGHAM}
             </MenuItem>
           </Select>
         </FormControl>
