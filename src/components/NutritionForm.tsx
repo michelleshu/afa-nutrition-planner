@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { FormLabel, Typography } from "@mui/material";
+import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
 import FormControl from "@mui/material/FormControl";
 import FormGroup from "@mui/material/FormGroup";
@@ -7,10 +8,13 @@ import Grid from "@mui/material/Unstable_Grid2";
 import InputAdornment from "@mui/material/InputAdornment";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
+import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import { useFormik } from "formik";
 
+import { AFA_DARK_BLUE } from "../colors";
 import { BIOLOGICAL_SEX, GOAL } from "../constants";
+import generateCadetPdf from "../pdf/cadet_pdf_generator";
 import {
   feetAndInchesToCm,
   feetAndInchesToCmRounded,
@@ -40,6 +44,8 @@ const NutritionForm = () => {
       leanBodyMassLbs: "",
       goal: GOAL.MAINTAIN_WEIGHT,
       goalWeightLbs: "",
+      goalText: "",
+      noteText: "",
     },
     onSubmit: (values) => {},
   });
@@ -47,6 +53,26 @@ const NutritionForm = () => {
   const goalInvolvesWeightChange = () =>
     formik.values.goal === GOAL.LOSE_WEIGHT ||
     formik.values.goal === GOAL.GAIN_WEIGHT;
+
+  const downloadCadetPdf = () => {
+    generateCadetPdf({
+      name: formik.values.firstName + " " + formik.values.lastName,
+      biologicalSex: formik.values.biologicalSex,
+      age: toNumber(formik.values.age),
+      heightFeet: toNumber(formik.values.heightFeet),
+      heightInches: toNumber(formik.values.heightInches),
+      weightLbs: toNumber(formik.values.weightLbs),
+      goalWeightLbs: isNumber(formik.values.goalWeightLbs)
+        ? toNumber(formik.values.goalWeightLbs)
+        : null,
+      goalText: formik.values.goalText,
+      vegetablePortions: 0,
+      fruitPortions: 0,
+      grainPortions: 0,
+      proteinPortions: 0,
+      dairyPortions: 0,
+    });
+  };
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -330,6 +356,58 @@ const NutritionForm = () => {
           />
         </>
       ) : null}
+
+      <Divider light sx={{ margin: "30px 0" }} />
+
+      <FormLabel>Cadet Goals</FormLabel>
+      <TextField
+        fullWidth
+        id="goalText"
+        name="goalText"
+        type="text"
+        multiline={true}
+        rows={3}
+        value={formik.values.goalText}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        sx={{ marginBottom: "30px" }}
+      />
+
+      <FormLabel>Dietitian Notes</FormLabel>
+      <TextField
+        fullWidth
+        id="noteText"
+        name="noteText"
+        type="text"
+        multiline={true}
+        rows={5}
+        value={formik.values.noteText}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+      />
+
+      <Stack
+        direction="row"
+        spacing={4}
+        justifyContent="center"
+        sx={{ marginTop: "30px" }}
+      >
+        <Button
+          size="large"
+          variant="contained"
+          onClick={downloadCadetPdf}
+          sx={{ backgroundColor: AFA_DARK_BLUE }}
+        >
+          Download PDF For Cadet
+        </Button>
+        <Button
+          size="large"
+          variant="outlined"
+          sx={{ borderColor: AFA_DARK_BLUE, color: AFA_DARK_BLUE }}
+        >
+          Download PDF For Dietitian
+        </Button>
+      </Stack>
     </form>
   );
 };
