@@ -11,6 +11,8 @@ import {
   LEAN_PROTEIN_SERVING,
   DAIRY_SERVING,
   FAT_SERVING,
+  MACRO_TOLERANCE,
+  CALORIE_TOLERANCE,
 } from "../constants";
 import { getDailyPortionTemplate } from "../util/daily_portion_templates";
 import { toNumberOrNull } from "../util/validations";
@@ -552,6 +554,10 @@ const DailyPortionsCalculator = ({
         <Typography
           variant="body1"
           sx={{
+            color:
+              Math.abs(totalProteinGrams() - proteinGrams) <= MACRO_TOLERANCE
+                ? GREEN
+                : RED,
             fontWeight: "bold",
             height: "32px",
             lineHeight: "32px",
@@ -565,6 +571,10 @@ const DailyPortionsCalculator = ({
         <Typography
           variant="body1"
           sx={{
+            color:
+              Math.abs(totalCarbGrams() - carbGrams) <= MACRO_TOLERANCE
+                ? GREEN
+                : RED,
             fontWeight: "bold",
             height: "32px",
             lineHeight: "32px",
@@ -578,6 +588,10 @@ const DailyPortionsCalculator = ({
         <Typography
           variant="body1"
           sx={{
+            color:
+              Math.abs(totalFatGrams() - fatGrams) <= MACRO_TOLERANCE
+                ? GREEN
+                : RED,
             fontWeight: "bold",
             height: "32px",
             lineHeight: "32px",
@@ -591,6 +605,10 @@ const DailyPortionsCalculator = ({
         <Typography
           variant="body1"
           sx={{
+            color:
+              Math.abs(totalCalories() - targetCalories) <= CALORIE_TOLERANCE
+                ? GREEN
+                : RED,
             fontWeight: "bold",
             height: "32px",
             lineHeight: "32px",

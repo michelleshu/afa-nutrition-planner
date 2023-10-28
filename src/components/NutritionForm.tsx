@@ -21,7 +21,7 @@ import {
   lbsToKg,
   lbsToKgRounded,
 } from "../util/conversions";
-import { isNumber, toNumber } from "../util/validations";
+import { isNotEmpty, isNumber, toNumber } from "../util/validations";
 import CalorieCalculator from "./CalorieCalculator";
 import DailyPortionsCalculator from "./DailyPortionsCalculator";
 import MacroCalculator from "./MacroCalculator";
@@ -57,6 +57,22 @@ const NutritionForm = () => {
   const goalInvolvesWeightChange = () =>
     formik.values.goal === GOAL.LOSE_WEIGHT ||
     formik.values.goal === GOAL.GAIN_WEIGHT;
+
+  const canDownloadCadetPdf = () => {
+    return (
+      isNotEmpty(formik.values.firstName) &&
+      isNotEmpty(formik.values.lastName) &&
+      isNotEmpty(formik.values.biologicalSex) &&
+      isNumber(formik.values.age) &&
+      isNumber(formik.values.heightFeet) &&
+      isNumber(formik.values.heightInches) &&
+      isNumber(formik.values.weightLbs) &&
+      isNumber(fruitServings) &&
+      isNumber(grainServings) &&
+      isNumber(proteinServings) &&
+      isNumber(dairyServings)
+    );
+  };
 
   const downloadCadetPdf = () => {
     generateCadetPdf({
@@ -403,6 +419,7 @@ const NutritionForm = () => {
           size="large"
           variant="contained"
           onClick={downloadCadetPdf}
+          disabled={!canDownloadCadetPdf()}
           sx={{ backgroundColor: AFA_DARK_BLUE }}
         >
           Download PDF For Cadet

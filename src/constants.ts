@@ -63,3 +63,6 @@ export const FAT_SERVING = {
   fatGrams: 5,
   proteinGrams: 0,
 };
+
+export const MACRO_TOLERANCE = 20;
+export const CALORIE_TOLERANCE = 100;
