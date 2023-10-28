@@ -31,6 +31,10 @@ const NutritionForm = () => {
   const [proteinGrams, setProteinGrams] = useState<number | null>(null);
   const [carbGrams, setCarbGrams] = useState<number | null>(null);
   const [fatGrams, setFatGrams] = useState<number | null>(null);
+  const [fruitServings, setFruitServings] = useState<number | null>(null);
+  const [grainServings, setGrainServings] = useState<number | null>(null);
+  const [proteinServings, setProteinServings] = useState<number | null>(null);
+  const [dairyServings, setDairyServings] = useState<number | null>(null);
 
   const formik = useFormik({
     initialValues: {
@@ -66,11 +70,10 @@ const NutritionForm = () => {
         ? toNumber(formik.values.goalWeightLbs)
         : null,
       goalText: formik.values.goalText,
-      vegetablePortions: 0,
-      fruitPortions: 0,
-      grainPortions: 0,
-      proteinPortions: 0,
-      dairyPortions: 0,
+      fruitPortions: fruitServings ? fruitServings : 0,
+      grainPortions: grainServings ? grainServings : 0,
+      proteinPortions: proteinServings ? proteinServings : 0,
+      dairyPortions: dairyServings ? dairyServings : 0,
     });
   };
 
@@ -353,6 +356,10 @@ const NutritionForm = () => {
             proteinGrams={proteinGrams || 0}
             carbGrams={carbGrams || 0}
             fatGrams={fatGrams || 0}
+            updateFruitServings={setFruitServings}
+            updateGrainServings={setGrainServings}
+            updateProteinServings={setProteinServings}
+            updateDairyServings={setDairyServings}
           />
         </>
       ) : null}

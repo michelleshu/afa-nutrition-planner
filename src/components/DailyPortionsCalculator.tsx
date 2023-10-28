@@ -19,10 +19,18 @@ const DailyPortionsCalculator = ({
   proteinGrams,
   carbGrams,
   fatGrams,
+  updateFruitServings,
+  updateGrainServings,
+  updateProteinServings,
+  updateDairyServings,
 }: {
   proteinGrams: number;
   carbGrams: number;
   fatGrams: number;
+  updateFruitServings: (servings: number | null) => void;
+  updateGrainServings: (servings: number | null) => void;
+  updateProteinServings: (servings: number | null) => void;
+  updateDairyServings: (servings: number | null) => void;
 }) => {
   const targetCalories = proteinGrams * 4 + carbGrams * 4 + fatGrams * 9;
   const dailyPortionTemplate = getDailyPortionTemplate(targetCalories);
@@ -53,6 +61,11 @@ const DailyPortionsCalculator = ({
     setLeanProteinServings(dailyPortionTemplate.leanProteinServings);
     setFatServings(dailyPortionTemplate.fatServings);
     setDairyServings(dailyPortionTemplate.dairyServings);
+
+    updateFruitServings(dailyPortionTemplate.fruitServings);
+    updateGrainServings(dailyPortionTemplate.grainServings);
+    updateProteinServings(dailyPortionTemplate.leanProteinServings);
+    updateDairyServings(dailyPortionTemplate.dairyServings);
   }, [dailyPortionTemplate]);
 
   const totalProteinGrams = () =>
@@ -102,6 +115,7 @@ const DailyPortionsCalculator = ({
     const value = toNumberOrNull(event.target.value);
     if (typeof value === "number") {
       setFruitServings(value);
+      updateFruitServings(value);
     }
   };
 
@@ -111,6 +125,7 @@ const DailyPortionsCalculator = ({
     const value = toNumberOrNull(event.target.value);
     if (typeof value === "number") {
       setGrainServings(value);
+      updateGrainServings(value);
     }
   };
 
@@ -120,6 +135,7 @@ const DailyPortionsCalculator = ({
     const value = toNumberOrNull(event.target.value);
     if (typeof value === "number") {
       setLeanProteinServings(value);
+      updateProteinServings(value);
     }
   };
 
@@ -138,6 +154,7 @@ const DailyPortionsCalculator = ({
     const value = toNumberOrNull(event.target.value);
     if (typeof value === "number") {
       setDairyServings(value);
+      updateDairyServings(value);
     }
   };
 
