@@ -375,6 +375,7 @@ const generateDietitianPdf = async ({
   });
 
   const dietitianPDFBytes = await dietitianPDF.save();
+
   download(
     dietitianPDFBytes,
     `${getFilePrefix(name)}_RDCopy.pdf`,

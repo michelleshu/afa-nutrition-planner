@@ -71,7 +71,14 @@ const DailyPortionsCalculator = ({
     updateProteinServings(dailyPortionTemplate.leanProteinServings);
     updateFatServings(dailyPortionTemplate.fatServings);
     updateDairyServings(dailyPortionTemplate.dairyServings);
-  }, [dailyPortionTemplate]);
+  }, [
+    dailyPortionTemplate,
+    updateFruitServings,
+    updateGrainServings,
+    updateProteinServings,
+    updateFatServings,
+    updateDairyServings,
+  ]);
 
   const totalProteinGrams = () =>
     VEGETABLE_SERVING.proteinGrams * vegetableServings +

@@ -349,6 +349,7 @@ const generateCadetPdf = async ({
   });
 
   const cadetPDFBytes = await cadetPDF.save();
+
   download(
     cadetPDFBytes,
     `${getFilePrefix(name)}_CadetCopy.pdf`,
