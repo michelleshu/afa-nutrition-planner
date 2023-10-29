@@ -10,6 +10,9 @@ import {
   PORTION_IMAGE_WIDTH,
   SERVING_INFO_X,
   SERVING_LINE_MARGIN,
+  NOTES_BOX_HEIGHT,
+  MACRONUTRIENT_CELL_WIDTH,
+  SERVINGS_CELL_WIDTH,
 } from "./pdf_constants";
 import {
   PDFFont,
@@ -19,6 +22,31 @@ import {
   layoutMultilineText,
   rgb,
 } from "pdf-lib";
+
+import {
+  VEGETABLE_SERVING,
+  FRUIT_SERVING,
+  GRAIN_SERVING,
+  LEAN_PROTEIN_SERVING,
+  DAIRY_SERVING,
+  FAT_SERVING,
+} from "../constants";
+import { lbsToKg } from "../util/conversions";
+
+export const getFilePrefix = (cadetName: string) => {
+  const nameNoSpaces = cadetName.replace(/\s/g, "");
+  const formattedMonth = moment().format("MMMYYYY");
+  return `${nameNoSpaces}_${formattedMonth}`;
+};
+
+export const drawDividerLine = ({ y, page }: { y: number; page: PDFPage }) => {
+  page.drawLine({
+    start: { x: HORIZONTAL_MARGIN, y },
+    end: { x: PAGE_WIDTH - HORIZONTAL_MARGIN, y },
+    thickness: 1,
+    color: rgb(0.9, 0.9, 0.9),
+  });
+};
 
 export const generateHeader = ({
   left,
@@ -165,8 +193,13 @@ export const generateHighlightBox = ({
   });
 
   if (subtext) {
+    const subtextWidth = helvetica.widthOfTextAtSize(subtext, subtextSize);
+    const subtextX = Math.round(
+      left + HIGHLIGHT_BOX_WIDTH / 2 - subtextWidth / 2
+    );
+
     page.drawText(subtext, {
-      x: left,
+      x: subtextX,
       y: boxY - HIGHLIGHT_BOX_VERTICAL_MARGIN - subtextHeight,
       size: subtextSize,
       font: helvetica,
@@ -258,6 +291,84 @@ export const generateGoalsBox = ({
 
   return (
     goalLabelHeight + goalBoxMargin + goalBoxHeight + 2 * goalBoxBorderWidth
+  );
+};
+
+export const generateDietitianNotesBox = ({
+  top,
+  left,
+  notesText,
+  page,
+  helvetica,
+  helveticaBold,
+}: {
+  top: number;
+  left: number;
+  notesText: string;
+  page: PDFPage;
+  helvetica: PDFFont;
+  helveticaBold: PDFFont;
+}) => {
+  const notesLabelSize = 12;
+  const notesLabelHeight = helveticaBold.heightAtSize(notesLabelSize);
+
+  const notesBoxWidth = PAGE_WIDTH - 2 * HORIZONTAL_MARGIN;
+  const notesBoxHeight = NOTES_BOX_HEIGHT;
+  const notesBoxMargin = 8;
+  const notesBoxPadding = 10;
+  const notesBoxBorderWidth = 1;
+  const notesTextSize = 14;
+  const notesTextLineWidth = notesBoxWidth - 2 * notesBoxPadding;
+  const notesTextHeight = notesBoxHeight - 2 * notesBoxPadding;
+
+  const goalTextX = left + notesBoxBorderWidth + notesBoxPadding;
+  const goalTextY =
+    top - notesLabelHeight - notesBoxMargin - notesBoxHeight + notesBoxPadding;
+
+  const { lines } = layoutMultilineText(notesText, {
+    alignment: TextAlignment.Left,
+    font: helvetica,
+    fontSize: notesTextSize,
+    bounds: {
+      x: goalTextX,
+      y: goalTextY,
+      width: notesTextLineWidth,
+      height: notesTextHeight,
+    },
+  });
+
+  page.drawText("Dietitian Notes", {
+    x: left,
+    y: top - notesLabelHeight,
+    size: notesLabelSize,
+    font: helveticaBold,
+  });
+
+  page.drawRectangle({
+    x: left,
+    y:
+      top -
+      notesLabelHeight -
+      notesBoxMargin -
+      notesBoxBorderWidth -
+      notesBoxHeight,
+    width: notesBoxWidth,
+    height: notesBoxHeight,
+    borderColor: rgb(0.9, 0.9, 0.9),
+    borderWidth: 1,
+  });
+
+  for (const line of lines.slice(0, 6)) {
+    page.drawText(line.text, {
+      x: line.x,
+      y: line.y,
+      size: notesTextSize,
+      font: helvetica,
+    });
+  }
+
+  return (
+    notesLabelHeight + notesBoxMargin + notesBoxHeight + 2 * notesBoxBorderWidth
   );
 };
 
@@ -378,11 +489,618 @@ export const generatePortionSection = ({
   return top - Math.min(portionYCursor, servingYCursor);
 };
 
-export const drawDividerLine = ({ y, page }: { y: number; page: PDFPage }) => {
+const centerInMacronutrientCell = ({
+  left,
+  top,
+  text,
+  font,
+  page,
+}: {
+  left: number;
+  top: number;
+  text: string;
+  font: PDFFont;
+  page: PDFPage;
+}) => {
+  const textWidth = font.widthOfTextAtSize(text, 14);
+  const x = left + MACRONUTRIENT_CELL_WIDTH / 2 - textWidth / 2;
+
+  page.drawText(text, {
+    x,
+    y: top,
+    font,
+    size: 14,
+  });
+};
+
+const generateMacronutrientRow = ({
+  top,
+  page,
+  macronutrientName,
+  macronutrientGrams,
+  macronutrientCalories,
+  macronutrientBWRatio,
+  macronutrientPercentage,
+  helvetica,
+  helveticaBold,
+}: {
+  top: number;
+  page: PDFPage;
+  macronutrientName: string;
+  macronutrientGrams: number;
+  macronutrientCalories: number;
+  macronutrientBWRatio: number;
+  macronutrientPercentage: number;
+  helvetica: PDFFont;
+  helveticaBold: PDFFont;
+}) => {
+  const gridWidth = PAGE_WIDTH - 2 * HORIZONTAL_MARGIN;
+  const cellStartX =
+    HORIZONTAL_MARGIN + (gridWidth - 4 * MACRONUTRIENT_CELL_WIDTH);
+
+  page.drawText(macronutrientName, {
+    x: HORIZONTAL_MARGIN,
+    y: top,
+    size: 14,
+    font: helveticaBold,
+  });
+
+  let xCursor = cellStartX;
+
+  centerInMacronutrientCell({
+    left: xCursor,
+    top: top,
+    text: `${macronutrientGrams} g`,
+    font: helveticaBold,
+    page,
+  });
+
+  xCursor += MACRONUTRIENT_CELL_WIDTH;
+
+  centerInMacronutrientCell({
+    left: xCursor,
+    top: top,
+    text: `${macronutrientCalories} cal`,
+    font: helvetica,
+    page,
+  });
+
+  xCursor += MACRONUTRIENT_CELL_WIDTH;
+
+  centerInMacronutrientCell({
+    left: xCursor,
+    top: top,
+    text: `${macronutrientBWRatio} g/kg BW`,
+    font: helvetica,
+    page,
+  });
+
+  xCursor += MACRONUTRIENT_CELL_WIDTH;
+
+  centerInMacronutrientCell({
+    left: xCursor,
+    top: top,
+    text: `${macronutrientPercentage}%`,
+    font: helvetica,
+    page,
+  });
+};
+
+export const generateMacronutrientGrid = ({
+  top,
+  page,
+  weightLbs,
+  proteinGrams,
+  carbGrams,
+  fatGrams,
+  helvetica,
+  helveticaBold,
+}: {
+  top: number;
+  page: PDFPage;
+  weightLbs: number;
+  proteinGrams: number;
+  carbGrams: number;
+  fatGrams: number;
+  helvetica: PDFFont;
+  helveticaBold: PDFFont;
+}) => {
+  const proteinCalories = 4 * proteinGrams;
+  const carbCalories = 4 * carbGrams;
+  const fatCalories = 9 * fatGrams;
+  const totalCalories = proteinCalories + carbCalories + fatCalories;
+
+  const bodyWeightKgs = lbsToKg(weightLbs);
+  const proteinBWRatio = Math.round((proteinGrams * 10) / bodyWeightKgs) / 10;
+  const carbBWRatio = Math.round((carbGrams * 10) / bodyWeightKgs) / 10;
+  const fatBWRatio = Math.round((fatGrams * 10) / bodyWeightKgs) / 10;
+
+  const proteinPercentage = Math.round((proteinCalories * 100) / totalCalories);
+  const carbPercentage = Math.round((carbCalories * 100) / totalCalories);
+  const fatPercentage = Math.round((fatCalories * 100) / totalCalories);
+
+  const rowHeight = helveticaBold.heightAtSize(14);
+  const rowMargin = 16;
+
+  const gridWidth = PAGE_WIDTH - 2 * HORIZONTAL_MARGIN;
+
+  let yCursor = top - rowHeight - rowMargin;
+
+  generateMacronutrientRow({
+    top: yCursor,
+    page,
+    macronutrientName: "Protein",
+    macronutrientGrams: proteinGrams,
+    macronutrientCalories: proteinCalories,
+    macronutrientBWRatio: proteinBWRatio,
+    macronutrientPercentage: proteinPercentage,
+    helvetica,
+    helveticaBold,
+  });
+
+  yCursor -= rowMargin;
+
+  drawDividerLine({ y: yCursor, page });
+
+  yCursor -= rowMargin + 1 + rowHeight;
+
+  generateMacronutrientRow({
+    top: yCursor,
+    page,
+    macronutrientName: "Carbohydrates",
+    macronutrientGrams: carbGrams,
+    macronutrientCalories: carbCalories,
+    macronutrientBWRatio: carbBWRatio,
+    macronutrientPercentage: carbPercentage,
+    helvetica,
+    helveticaBold,
+  });
+
+  yCursor -= rowMargin;
+
+  drawDividerLine({ y: yCursor, page });
+
+  yCursor -= rowMargin + 1 + rowHeight;
+
+  generateMacronutrientRow({
+    top: yCursor,
+    page,
+    macronutrientName: "Fats",
+    macronutrientGrams: fatGrams,
+    macronutrientCalories: fatCalories,
+    macronutrientBWRatio: fatBWRatio,
+    macronutrientPercentage: fatPercentage,
+    helvetica,
+    helveticaBold,
+  });
+
+  yCursor -= rowMargin;
+
   page.drawLine({
-    start: { x: HORIZONTAL_MARGIN, y },
-    end: { x: PAGE_WIDTH - HORIZONTAL_MARGIN, y },
+    start: {
+      x: HORIZONTAL_MARGIN + (gridWidth - 3 * MACRONUTRIENT_CELL_WIDTH),
+      y: yCursor,
+    },
+    end: {
+      x: HORIZONTAL_MARGIN + (gridWidth - 2 * MACRONUTRIENT_CELL_WIDTH),
+      y: yCursor,
+    },
     thickness: 1,
-    color: rgb(0.9, 0.9, 0.9),
+    color: rgb(0, 0, 0),
+  });
+
+  yCursor -= rowMargin + 1 + rowHeight;
+
+  centerInMacronutrientCell({
+    left: HORIZONTAL_MARGIN + (gridWidth - 3 * MACRONUTRIENT_CELL_WIDTH),
+    top: yCursor,
+    text: `${totalCalories} cal`,
+    font: helveticaBold,
+    page,
+  });
+
+  yCursor -= rowMargin;
+
+  return top - yCursor;
+};
+
+const centerInServingsCell = ({
+  left,
+  top,
+  text,
+  font,
+  page,
+}: {
+  left: number;
+  top: number;
+  text: string;
+  font: PDFFont;
+  page: PDFPage;
+}) => {
+  const textWidth = font.widthOfTextAtSize(text, 14);
+  const x = left + SERVINGS_CELL_WIDTH / 2 - textWidth / 2;
+
+  page.drawText(text, {
+    x,
+    y: top,
+    font,
+    size: 14,
+  });
+};
+
+const generateServingsGridHeading = ({
+  top,
+  page,
+  helveticaBold,
+}: {
+  top: number;
+  page: PDFPage;
+  helveticaBold: PDFFont;
+}) => {
+  const gridWidth = PAGE_WIDTH - 2 * HORIZONTAL_MARGIN;
+  let xCursor = HORIZONTAL_MARGIN + (gridWidth - 5 * SERVINGS_CELL_WIDTH);
+
+  centerInServingsCell({
+    left: xCursor,
+    top: top,
+    text: "Servings",
+    font: helveticaBold,
+    page,
+  });
+
+  xCursor += SERVINGS_CELL_WIDTH;
+
+  centerInServingsCell({
+    left: xCursor,
+    top: top,
+    text: "Protein",
+    font: helveticaBold,
+    page,
+  });
+
+  xCursor += SERVINGS_CELL_WIDTH;
+
+  centerInServingsCell({
+    left: xCursor,
+    top: top,
+    text: "Carbs",
+    font: helveticaBold,
+    page,
+  });
+
+  xCursor += SERVINGS_CELL_WIDTH;
+
+  centerInServingsCell({
+    left: xCursor,
+    top: top,
+    text: "Fats",
+    font: helveticaBold,
+    page,
+  });
+
+  xCursor += SERVINGS_CELL_WIDTH;
+
+  centerInServingsCell({
+    left: xCursor,
+    top: top,
+    text: "Calories",
+    font: helveticaBold,
+    page,
+  });
+};
+
+const generateServingsGridRow = ({
+  top,
+  page,
+  name,
+  servings,
+  proteinGrams,
+  carbGrams,
+  fatGrams,
+  calories,
+  helvetica,
+  helveticaBold,
+}: {
+  top: number;
+  page: PDFPage;
+  name: string;
+  servings: string;
+  proteinGrams: number;
+  carbGrams: number;
+  fatGrams: number;
+  calories: number;
+  helvetica: PDFFont;
+  helveticaBold: PDFFont;
+}) => {
+  page.drawText(name, {
+    x: HORIZONTAL_MARGIN,
+    y: top,
+    size: 14,
+    font: helveticaBold,
+  });
+
+  const gridWidth = PAGE_WIDTH - 2 * HORIZONTAL_MARGIN;
+  let xCursor = HORIZONTAL_MARGIN + (gridWidth - 5 * SERVINGS_CELL_WIDTH);
+
+  centerInServingsCell({
+    left: xCursor,
+    top: top,
+    text: servings,
+    font: helveticaBold,
+    page,
+  });
+
+  xCursor += SERVINGS_CELL_WIDTH;
+
+  centerInServingsCell({
+    left: xCursor,
+    top: top,
+    text: proteinGrams.toString(),
+    font: helvetica,
+    page,
+  });
+
+  xCursor += SERVINGS_CELL_WIDTH;
+
+  centerInServingsCell({
+    left: xCursor,
+    top: top,
+    text: carbGrams.toString(),
+    font: helvetica,
+    page,
+  });
+
+  xCursor += SERVINGS_CELL_WIDTH;
+
+  centerInServingsCell({
+    left: xCursor,
+    top: top,
+    text: fatGrams.toString(),
+    font: helvetica,
+    page,
+  });
+
+  xCursor += SERVINGS_CELL_WIDTH;
+
+  centerInServingsCell({
+    left: xCursor,
+    top: top,
+    text: calories.toString(),
+    font: helvetica,
+    page,
+  });
+};
+
+export const generateServingsGrid = ({
+  top,
+  page,
+  fruitPortions,
+  grainPortions,
+  proteinPortions,
+  fatPortions,
+  dairyPortions,
+  helvetica,
+  helveticaBold,
+}: {
+  top: number;
+  page: PDFPage;
+  fruitPortions: number;
+  grainPortions: number;
+  proteinPortions: number;
+  fatPortions: number;
+  dairyPortions: number;
+  helvetica: PDFFont;
+  helveticaBold: PDFFont;
+}) => {
+  const fontSize = 14;
+  const rowHeight = helveticaBold.heightAtSize(fontSize);
+  const rowMargin = 16;
+
+  let yCursor = top - rowHeight;
+
+  generateServingsGridHeading({
+    top: yCursor,
+    page,
+    helveticaBold,
+  });
+
+  yCursor -= rowMargin;
+
+  drawDividerLine({ y: yCursor, page });
+
+  yCursor -= rowMargin + 1 + rowHeight;
+
+  generateServingsGridRow({
+    top: yCursor,
+    page,
+    name: "Vegetables",
+    servings: "4 - 6",
+    proteinGrams: 6 * VEGETABLE_SERVING.proteinGrams,
+    carbGrams: 6 * VEGETABLE_SERVING.carbGrams,
+    fatGrams: 6 * VEGETABLE_SERVING.fatGrams,
+    calories: 6 * VEGETABLE_SERVING.calories,
+    helvetica,
+    helveticaBold,
+  });
+
+  yCursor -= rowMargin;
+
+  drawDividerLine({ y: yCursor, page });
+
+  yCursor -= rowMargin + 1 + rowHeight;
+
+  generateServingsGridRow({
+    top: yCursor,
+    page,
+    name: "Fruits",
+    servings: fruitPortions.toString(),
+    proteinGrams: fruitPortions * FRUIT_SERVING.proteinGrams,
+    carbGrams: fruitPortions * FRUIT_SERVING.carbGrams,
+    fatGrams: fruitPortions * FRUIT_SERVING.fatGrams,
+    calories: fruitPortions * FRUIT_SERVING.calories,
+    helvetica,
+    helveticaBold,
+  });
+
+  yCursor -= rowMargin;
+
+  drawDividerLine({ y: yCursor, page });
+
+  yCursor -= rowMargin + 1 + rowHeight;
+
+  generateServingsGridRow({
+    top: yCursor,
+    page,
+    name: "Grains",
+    servings: grainPortions.toString(),
+    proteinGrams: grainPortions * GRAIN_SERVING.proteinGrams,
+    carbGrams: grainPortions * GRAIN_SERVING.carbGrams,
+    fatGrams: grainPortions * GRAIN_SERVING.fatGrams,
+    calories: grainPortions * GRAIN_SERVING.calories,
+    helvetica,
+    helveticaBold,
+  });
+
+  yCursor -= rowMargin;
+
+  drawDividerLine({ y: yCursor, page });
+
+  yCursor -= rowMargin + 1 + rowHeight;
+
+  generateServingsGridRow({
+    top: yCursor,
+    page,
+    name: "Protein",
+    servings: proteinPortions.toString(),
+    proteinGrams: proteinPortions * LEAN_PROTEIN_SERVING.proteinGrams,
+    carbGrams: proteinPortions * LEAN_PROTEIN_SERVING.carbGrams,
+    fatGrams: proteinPortions * LEAN_PROTEIN_SERVING.fatGrams,
+    calories: proteinPortions * LEAN_PROTEIN_SERVING.calories,
+    helvetica,
+    helveticaBold,
+  });
+
+  yCursor -= rowMargin;
+
+  drawDividerLine({ y: yCursor, page });
+
+  yCursor -= rowMargin + 1 + rowHeight;
+
+  generateServingsGridRow({
+    top: yCursor,
+    page,
+    name: "Fats",
+    servings: fatPortions.toString(),
+    proteinGrams: fatPortions * FAT_SERVING.proteinGrams,
+    carbGrams: fatPortions * FAT_SERVING.carbGrams,
+    fatGrams: fatPortions * FAT_SERVING.fatGrams,
+    calories: fatPortions * FAT_SERVING.calories,
+    helvetica,
+    helveticaBold,
+  });
+
+  yCursor -= rowMargin;
+
+  drawDividerLine({ y: yCursor, page });
+
+  yCursor -= rowMargin + 1 + rowHeight;
+
+  generateServingsGridRow({
+    top: yCursor,
+    page,
+    name: "Dairy",
+    servings: dairyPortions.toString(),
+    proteinGrams: dairyPortions * DAIRY_SERVING.proteinGrams,
+    carbGrams: dairyPortions * DAIRY_SERVING.carbGrams,
+    fatGrams: dairyPortions * DAIRY_SERVING.fatGrams,
+    calories: dairyPortions * DAIRY_SERVING.calories,
+    helvetica,
+    helveticaBold,
+  });
+
+  yCursor -= rowMargin;
+
+  const gridWidth = PAGE_WIDTH - 2 * HORIZONTAL_MARGIN;
+
+  page.drawLine({
+    start: {
+      x: HORIZONTAL_MARGIN + (gridWidth - 4 * SERVINGS_CELL_WIDTH),
+      y: yCursor,
+    },
+    end: {
+      x: HORIZONTAL_MARGIN + gridWidth,
+      y: yCursor,
+    },
+    thickness: 1,
+    color: rgb(0, 0, 0),
+  });
+
+  yCursor -= rowMargin + 1 + rowHeight;
+  let xCursor = HORIZONTAL_MARGIN + (gridWidth - 4 * SERVINGS_CELL_WIDTH);
+
+  centerInServingsCell({
+    left: xCursor,
+    top: yCursor,
+    text: `${
+      6 * VEGETABLE_SERVING.proteinGrams +
+      fruitPortions * FRUIT_SERVING.proteinGrams +
+      grainPortions * GRAIN_SERVING.proteinGrams +
+      proteinPortions * LEAN_PROTEIN_SERVING.proteinGrams +
+      fatPortions * FAT_SERVING.proteinGrams +
+      dairyPortions * DAIRY_SERVING.proteinGrams
+    } g`,
+    font: helveticaBold,
+    page,
+  });
+
+  xCursor += SERVINGS_CELL_WIDTH;
+
+  centerInServingsCell({
+    left: xCursor,
+    top: yCursor,
+    text: `${
+      6 * VEGETABLE_SERVING.carbGrams +
+      fruitPortions * FRUIT_SERVING.carbGrams +
+      grainPortions * GRAIN_SERVING.carbGrams +
+      proteinPortions * LEAN_PROTEIN_SERVING.carbGrams +
+      fatPortions * FAT_SERVING.carbGrams +
+      dairyPortions * DAIRY_SERVING.carbGrams
+    } g`,
+    font: helveticaBold,
+    page,
+  });
+
+  xCursor += SERVINGS_CELL_WIDTH;
+
+  centerInServingsCell({
+    left: xCursor,
+    top: yCursor,
+    text: `${
+      6 * VEGETABLE_SERVING.fatGrams +
+      fruitPortions * FRUIT_SERVING.fatGrams +
+      grainPortions * GRAIN_SERVING.fatGrams +
+      proteinPortions * LEAN_PROTEIN_SERVING.fatGrams +
+      fatPortions * FAT_SERVING.fatGrams +
+      dairyPortions * DAIRY_SERVING.fatGrams
+    } g`,
+    font: helveticaBold,
+    page,
+  });
+
+  xCursor += SERVINGS_CELL_WIDTH;
+
+  centerInServingsCell({
+    left: xCursor,
+    top: yCursor,
+    text: `${
+      6 * VEGETABLE_SERVING.calories +
+      fruitPortions * FRUIT_SERVING.calories +
+      grainPortions * GRAIN_SERVING.calories +
+      proteinPortions * LEAN_PROTEIN_SERVING.calories +
+      fatPortions * FAT_SERVING.calories +
+      dairyPortions * DAIRY_SERVING.calories
+    }`,
+    font: helveticaBold,
+    page,
   });
 };

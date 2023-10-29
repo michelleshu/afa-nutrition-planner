@@ -16,6 +16,7 @@ import {
   generateHeader,
   generateHighlightBox,
   generatePortionSection,
+  getFilePrefix,
 } from "./pdf_helpers";
 import { cuppedHand, fist, glass, logo, palm } from "./pdf_images";
 
@@ -348,7 +349,11 @@ const generateCadetPdf = async ({
   });
 
   const cadetPDFBytes = await cadetPDF.save();
-  download(cadetPDFBytes, "cadet-nutrition.pdf", "application/pdf");
+  download(
+    cadetPDFBytes,
+    `${getFilePrefix(name)}_CadetCopy.pdf`,
+    "application/pdf"
+  );
 };
 
 export default generateCadetPdf;

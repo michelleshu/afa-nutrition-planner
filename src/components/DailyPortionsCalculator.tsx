@@ -24,6 +24,7 @@ const DailyPortionsCalculator = ({
   updateFruitServings,
   updateGrainServings,
   updateProteinServings,
+  updateFatServings,
   updateDairyServings,
 }: {
   proteinGrams: number;
@@ -32,6 +33,7 @@ const DailyPortionsCalculator = ({
   updateFruitServings: (servings: number | null) => void;
   updateGrainServings: (servings: number | null) => void;
   updateProteinServings: (servings: number | null) => void;
+  updateFatServings: (servings: number | null) => void;
   updateDairyServings: (servings: number | null) => void;
 }) => {
   const targetCalories = proteinGrams * 4 + carbGrams * 4 + fatGrams * 9;
@@ -67,6 +69,7 @@ const DailyPortionsCalculator = ({
     updateFruitServings(dailyPortionTemplate.fruitServings);
     updateGrainServings(dailyPortionTemplate.grainServings);
     updateProteinServings(dailyPortionTemplate.leanProteinServings);
+    updateFatServings(dailyPortionTemplate.fatServings);
     updateDairyServings(dailyPortionTemplate.dairyServings);
   }, [dailyPortionTemplate]);
 
@@ -147,6 +150,7 @@ const DailyPortionsCalculator = ({
     const value = toNumberOrNull(event.target.value);
     if (typeof value === "number") {
       setFatServings(value);
+      updateFatServings(value);
     }
   };
 

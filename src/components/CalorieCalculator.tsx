@@ -25,6 +25,9 @@ const CalorieCalculator = ({
   leanBodyMassKgs,
   goal,
   goalWeightKgs,
+  updateBMR,
+  updateBMRMethod,
+  updateTDEE,
   setTargetCalories,
 }: {
   biologicalSex: string;
@@ -34,6 +37,9 @@ const CalorieCalculator = ({
   leanBodyMassKgs: number | null;
   goal: string;
   goalWeightKgs: number | null;
+  updateBMR: (bmr: number | null) => void;
+  updateBMRMethod: (bmrMethod: string) => void;
+  updateTDEE: (tdee: number | null) => void;
   setTargetCalories: (targetCalories: number | null) => void;
 }) => {
   const [bmrMethod, setBmrMethod] = useState<string>(
@@ -85,6 +91,7 @@ const CalorieCalculator = ({
     (bmr: number, paf: number) => {
       const newTdee = bmr * paf;
       setTdee(Math.round(newTdee));
+      updateTDEE(Math.round(newTdee));
       updateTargetCalorieFactor({
         tdee: newTdee,
         goal,
@@ -97,6 +104,7 @@ const CalorieCalculator = ({
 
   const clearTdee = useCallback(() => {
     setTdee(null);
+    updateTDEE(null);
     updateTargetCalorieFactor({
       tdee: null,
       goal,
@@ -153,6 +161,7 @@ const CalorieCalculator = ({
         }
 
         setEstimatedBmr(bmr);
+        updateBMR(bmr);
         if (isNumber(bmr) && isNumber(physicalActivityFactor)) {
           updateTdee(toNumber(bmr), toNumber(physicalActivityFactor));
         }
@@ -183,6 +192,7 @@ const CalorieCalculator = ({
 
   const handleBmrMethodChange = (event: SelectChangeEvent) => {
     setBmrMethod(event.target.value);
+    updateBMRMethod(event.target.value);
     updateEstimatedBmr(event.target.value);
   };
 

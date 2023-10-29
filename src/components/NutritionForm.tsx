@@ -13,8 +13,9 @@ import TextField from "@mui/material/TextField";
 import { useFormik } from "formik";
 
 import { AFA_DARK_BLUE } from "../colors";
-import { BIOLOGICAL_SEX, GOAL } from "../constants";
+import { BIOLOGICAL_SEX, BMR_METHOD, GOAL } from "../constants";
 import generateCadetPdf from "../pdf/cadet_pdf_generator";
+import generateDietitianPdf from "../pdf/dietitian_pdf_generator";
 import {
   feetAndInchesToCm,
   feetAndInchesToCmRounded,
@@ -31,9 +32,15 @@ const NutritionForm = () => {
   const [proteinGrams, setProteinGrams] = useState<number | null>(null);
   const [carbGrams, setCarbGrams] = useState<number | null>(null);
   const [fatGrams, setFatGrams] = useState<number | null>(null);
+  const [bmr, setBmr] = useState<number | null>(null);
+  const [bmrMethod, setBmrMethod] = useState<string>(
+    BMR_METHOD.HARRIS_BENEDICT
+  );
+  const [tdee, setTdee] = useState<number | null>(null);
   const [fruitServings, setFruitServings] = useState<number | null>(null);
   const [grainServings, setGrainServings] = useState<number | null>(null);
   const [proteinServings, setProteinServings] = useState<number | null>(null);
+  const [fatServings, setFatServings] = useState<number | null>(null);
   const [dairyServings, setDairyServings] = useState<number | null>(null);
 
   const formik = useFormik({
@@ -74,6 +81,30 @@ const NutritionForm = () => {
     );
   };
 
+  const canDownloadDietitianPdf = () => {
+    return (
+      isNotEmpty(formik.values.firstName) &&
+      isNotEmpty(formik.values.lastName) &&
+      isNotEmpty(formik.values.biologicalSex) &&
+      isNumber(formik.values.age) &&
+      isNumber(formik.values.heightFeet) &&
+      isNumber(formik.values.heightInches) &&
+      isNumber(formik.values.weightLbs) &&
+      isNumber(bmr) &&
+      isNotEmpty(bmrMethod) &&
+      isNumber(tdee) &&
+      isNumber(targetCalories) &&
+      isNumber(proteinGrams) &&
+      isNumber(carbGrams) &&
+      isNumber(fatGrams) &&
+      isNumber(fruitServings) &&
+      isNumber(grainServings) &&
+      isNumber(proteinServings) &&
+      isNumber(fatServings) &&
+      isNumber(dairyServings)
+    );
+  };
+
   const downloadCadetPdf = () => {
     generateCadetPdf({
       name: formik.values.firstName + " " + formik.values.lastName,
@@ -89,6 +120,37 @@ const NutritionForm = () => {
       fruitPortions: fruitServings ? fruitServings : 0,
       grainPortions: grainServings ? grainServings : 0,
       proteinPortions: proteinServings ? proteinServings : 0,
+      dairyPortions: dairyServings ? dairyServings : 0,
+    });
+  };
+
+  const downloadDietitianPdf = () => {
+    generateDietitianPdf({
+      name: formik.values.firstName + " " + formik.values.lastName,
+      biologicalSex: formik.values.biologicalSex,
+      age: toNumber(formik.values.age),
+      heightFeet: toNumber(formik.values.heightFeet),
+      heightInches: toNumber(formik.values.heightInches),
+      weightLbs: toNumber(formik.values.weightLbs),
+      goalWeightLbs: isNumber(formik.values.goalWeightLbs)
+        ? toNumber(formik.values.goalWeightLbs)
+        : null,
+      leanBodyMassLbs: isNumber(formik.values.leanBodyMassLbs)
+        ? toNumber(formik.values.leanBodyMassLbs)
+        : null,
+      goalText: formik.values.goalText,
+      dietitianNotes: formik.values.noteText,
+      bmr: bmr ? bmr : 0,
+      bmrMethod: bmrMethod,
+      tdee: tdee ? tdee : 0,
+      targetCalories: targetCalories ? Math.round(targetCalories) : 0,
+      proteinGrams: proteinGrams ? proteinGrams : 0,
+      carbGrams: carbGrams ? carbGrams : 0,
+      fatGrams: fatGrams ? fatGrams : 0,
+      fruitPortions: fruitServings ? fruitServings : 0,
+      grainPortions: grainServings ? grainServings : 0,
+      proteinPortions: proteinServings ? proteinServings : 0,
+      fatPortions: fatServings ? fatServings : 0,
       dairyPortions: dairyServings ? dairyServings : 0,
     });
   };
@@ -340,6 +402,9 @@ const NutritionForm = () => {
             ? lbsToKg(toNumber(formik.values.goalWeightLbs))
             : null
         }
+        updateBMR={setBmr}
+        updateBMRMethod={setBmrMethod}
+        updateTDEE={setTdee}
         setTargetCalories={setTargetCalories}
       />
       {isNumber(targetCalories) && isNumber(formik.values.weightLbs) ? (
@@ -375,6 +440,7 @@ const NutritionForm = () => {
             updateFruitServings={setFruitServings}
             updateGrainServings={setGrainServings}
             updateProteinServings={setProteinServings}
+            updateFatServings={setFatServings}
             updateDairyServings={setDairyServings}
           />
         </>
@@ -427,6 +493,8 @@ const NutritionForm = () => {
         <Button
           size="large"
           variant="outlined"
+          onClick={downloadDietitianPdf}
+          disabled={!canDownloadDietitianPdf()}
           sx={{ borderColor: AFA_DARK_BLUE, color: AFA_DARK_BLUE }}
         >
           Download PDF For Dietitian
