@@ -189,7 +189,7 @@ const generateFirstPage = async ({
     top: yCursor,
     label: "TDEE",
     value: `${tdee} cal`,
-    subtext: `Physical Activity: ${Math.round((tdee * 100) / bmr) / 10}`,
+    subtext: `Physical Activity: ${Math.round((tdee * 10) / bmr) / 10}`,
     page: firstPage,
     helvetica,
     helveticaBold,
