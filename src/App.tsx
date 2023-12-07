@@ -8,8 +8,8 @@ import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 
 import "./App.css";
-import { AFA_DARK_BLUE } from "./colors";
-import NutritionForm from "./components/NutritionForm";
+import { AFA_DARK_BLUE } from "./nutrition-planner/colors";
+import NutritionForm from "./nutrition-planner/components/NutritionForm";
 import HorizontalLogo from "./images/AFA-horizontal-logo.png";
 import { Typography } from "@mui/material";
 

@@ -99,7 +99,7 @@ const CalorieCalculator = ({
         goalWeightKgs,
       });
     },
-    [goal, weightKgs, goalWeightKgs, updateTargetCalorieFactor]
+    [goal, weightKgs, goalWeightKgs, updateTargetCalorieFactor, updateTDEE]
   );
 
   const clearTdee = useCallback(() => {
@@ -111,7 +111,7 @@ const CalorieCalculator = ({
       weightKgs,
       goalWeightKgs,
     });
-  }, [goal, weightKgs, goalWeightKgs, updateTargetCalorieFactor]);
+  }, [goal, weightKgs, goalWeightKgs, updateTargetCalorieFactor, updateTDEE]);
 
   const updateEstimatedBmr = useCallback(
     (bmrEstimationMethod: string) => {
@@ -174,6 +174,7 @@ const CalorieCalculator = ({
       leanBodyMassKgs,
       weightKgs,
       physicalActivityFactor,
+      updateBMR,
       updateTdee,
     ]
   );
