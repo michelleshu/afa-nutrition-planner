@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.ccb5e5da.css",
-    "main.js": "/static/js/main.c6e21b25.js",
+    "main.css": "/static/css/main.e08fb61d.css",
+    "main.js": "/static/js/main.7837b321.js",
     "static/js/787.8c634315.chunk.js": "/static/js/787.8c634315.chunk.js",
     "static/media/AFA-horizontal-logo.png": "/static/media/AFA-horizontal-logo.9da17cd38e05e8a4ff71.png",
     "static/media/roboto-latin-500-normal.woff2": "/static/media/roboto-latin-500-normal.f25d774ecfe0996f8eb5.woff2",
@@ -61,12 +61,12 @@
     "static/media/roboto-greek-ext-400-normal.woff": "/static/media/roboto-greek-ext-400-normal.f708607d2a7290fb8bfa.woff",
     "static/media/roboto-greek-ext-700-normal.woff": "/static/media/roboto-greek-ext-700-normal.249853776d22a271b2b5.woff",
     "index.html": "/index.html",
-    "main.ccb5e5da.css.map": "/static/css/main.ccb5e5da.css.map",
-    "main.c6e21b25.js.map": "/static/js/main.c6e21b25.js.map",
+    "main.e08fb61d.css.map": "/static/css/main.e08fb61d.css.map",
+    "main.7837b321.js.map": "/static/js/main.7837b321.js.map",
     "787.8c634315.chunk.js.map": "/static/js/787.8c634315.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.ccb5e5da.css",
-    "static/js/main.c6e21b25.js"
+    "static/css/main.e08fb61d.css",
+    "static/js/main.7837b321.js"
   ]
 }
