@@ -3,44 +3,67 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 
-import React from "react";
+import React, { useState } from "react";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
-import Stack from "@mui/material/Stack";
 
-import "./App.css";
-import { AFA_DARK_BLUE } from "./nutrition-planner/colors";
-import NutritionForm from "./nutrition-planner/components/NutritionForm";
-import HorizontalLogo from "./images/AFA-horizontal-logo.png";
-import { Typography } from "@mui/material";
+import NutritionPlanner from "./nutrition-planner/NutritionPlanner";
+import TrainingTables from "./training-tables/TrainingTables";
+
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+    >
+      {value === index && <Box>{children}</Box>}
+    </div>
+  );
+}
+
+function a11yProps(index: number) {
+  return {
+    "id": `simple-tab-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`,
+  };
+}
 
 function App() {
-  return (
-    <Box
-      className="nutrition-planner"
-      sx={{
-        flexGrow: 1,
-        margin: "60px auto",
-        width: "900px",
-      }}
-    >
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        marginBottom="36px"
-        spacing={4}
-      >
-        <Typography variant="h2" component="h1" sx={{ color: AFA_DARK_BLUE }}>
-          Nutrition Planner
-        </Typography>
-        <img
-          className="HorizontalLogo"
-          src={HorizontalLogo}
-          alt="Air Force Academy Logo"
-        />
-      </Stack>
+  const [tabValue, setTabValue] = useState(0);
 
-      <NutritionForm />
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
+
+  return (
+    <Box>
+      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
+          aria-label="Navigation Tabs"
+        >
+          <Tab label="Nutrition Planner" {...a11yProps(0)}></Tab>
+          <Tab label="Training Tables" {...a11yProps(1)}></Tab>
+        </Tabs>
+      </Box>
+      <TabPanel value={tabValue} index={0}>
+        <NutritionPlanner />
+      </TabPanel>
+      <TabPanel value={tabValue} index={1}>
+        <TrainingTables />
+      </TabPanel>
     </Box>
   );
 }

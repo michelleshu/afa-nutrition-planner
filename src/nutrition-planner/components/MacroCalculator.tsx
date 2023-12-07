@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Typography } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
 
-import { BLUE, GREEN, RED, YELLOW } from "../colors";
+import { BLUE, GREEN, RED, YELLOW } from "../../colors";
 import {
   BlueMacroSlider,
   RedMacroSlider,

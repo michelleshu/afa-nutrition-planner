@@ -3,7 +3,7 @@ import { Typography } from "@mui/material";
 import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Unstable_Grid2";
 
-import { BLUE, GREEN, ORANGE, PURPLE, RED, YELLOW } from "../colors";
+import { BLUE, GREEN, ORANGE, PURPLE, RED, YELLOW } from "../../colors";
 import {
   VEGETABLE_SERVING,
   FRUIT_SERVING,

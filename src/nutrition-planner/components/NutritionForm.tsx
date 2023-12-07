@@ -12,7 +12,7 @@ import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import { useFormik } from "formik";
 
-import { AFA_DARK_BLUE } from "../colors";
+import { AFA_DARK_BLUE } from "../../colors";
 import { BIOLOGICAL_SEX, BMR_METHOD, GOAL } from "../constants";
 import generateCadetPdf from "../pdf/cadet_pdf_generator";
 import generateDietitianPdf from "../pdf/dietitian_pdf_generator";
